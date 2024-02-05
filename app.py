@@ -1,9 +1,12 @@
+from flask import Flask, render_template
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+
+app = Flask(__name__)
 
 # URL of the main page
 url = "https://megapersonals.eu/users/posts/list"
@@ -13,6 +16,8 @@ testing_mode = True
 
 # Function to perform the automation actions
 def automate_process():
+    output = ""  # Initialize the output variable
+
     # Set up Chrome options for headless mode
     chrome_options = Options()
     chrome_options.add_argument('--headless')
@@ -28,6 +33,8 @@ def automate_process():
         # Interactive step: Bump to Top command
         if testing_mode:
             input("Press Enter to execute the Bump to Top command...")
+
+        output += "Executing Bump to Top command...\n"
 
         # Find and click the "Bump To Top" button
         bump_button = driver.find_element_by_id("managePublishAd")
@@ -45,31 +52,31 @@ def automate_process():
         # Interactive step: My Posts command
         if testing_mode:
             input("Press Enter to execute the My Posts command...")
+
+        output += "Executing My Posts command...\n"
+
         my_posts_button.click()
 
         # Wait for the "My Posts" page to load (adjust the timeout as needed)
         WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "post_header")))
 
+        # Get the current page URL
+        current_page = driver.current_url
+
     except Exception as e:
-        print(f"Error: {e}")
+        output += f"Error: {e}\n"
 
     finally:
         # Close the browser
         driver.quit()
 
-# Main loop
-while True:
-    automate_process()
+    return output, current_page
 
-    # Interactive step: Wait 15 mins command
-    if testing_mode:
-        input("Press Enter to start the 15-minute countdown...")
+# Route for the main page
+@app.route('/')
+def main_page():
+    output, current_page = automate_process()
+    return render_template('index.html', output=output, current_page=current_page)
 
-    # Countdown
-    for remaining_time in range(900, 0, -1):
-        print(f"Time remaining: {remaining_time} seconds", end="\r")
-        time.sleep(1)
-
-    print("\nPress Enter to end/exit the sequence.")
-    if testing_mode:
-        input()
+if __name__ == '__main__':
+    app.run(debug=True)
