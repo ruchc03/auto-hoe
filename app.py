@@ -17,6 +17,7 @@ testing_mode = True
 # Function to perform the automation actions
 def automate_process():
     output = ""  # Initialize the output variable
+    current_page = ""  # Initialize the current_page variable
 
     # Set up Chrome options for headless mode
     chrome_options = Options()
