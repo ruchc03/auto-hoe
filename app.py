@@ -4,12 +4,14 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import time
 
 app = Flask(__name__)
 
 # URL of the main page
-url = "https://megapersonals.eu/users/posts/list"
+main_page_url = "https://megapersonals.eu/users/posts/list"
+
+# URL of the login page
+login_page_url = "https://megapersonals.eu/login"
 
 # Set this variable to True for testing mode, False for production mode
 testing_mode = True
@@ -29,7 +31,7 @@ def automate_process():
 
     try:
         # Open the main page
-        driver.get(url)
+        driver.get(main_page_url)
 
         # Interactive step: Bump to Top command
         if testing_mode:
@@ -77,7 +79,7 @@ def automate_process():
 @app.route('/')
 def main_page():
     output, current_page = automate_process()
-    return render_template('index.html', output=output, current_page=current_page)
+    return render_template('index.html', output=output, current_page=current_page, login_page_url=login_page_url, main_page_url=main_page_url)
 
 if __name__ == '__main__':
     app.run(debug=True)
